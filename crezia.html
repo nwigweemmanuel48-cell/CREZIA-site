@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREZIA – Where Creative Vision Happens</title>
+
+<!-- Fonts: Inter and Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Load Tailwind CSS for utility classes (though mostly custom CSS is used here, adding it as a best practice) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Styles -->
+<style>
+    /* Tailwind Configuration (Ensures Inter is available via Poppins fallback) */
+    :root {
+        --color-primary: #d6ae60; /* Gold */
+        --color-bg-dark: #0A0A0A;
+        --color-card-dark: #181818;
+        --color-border-dark: #333;
+    }
+
+    body {
+        font-family: 'Poppins', 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--color-bg-dark);
+        color: #ffffff;
+        line-height: 1.6;
+        min-height: 100vh;
+        overflow-x: hidden; /* Prevent horizontal scroll on transition */
+    }
+
+    /* Utility: Centering Content */
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 0 20px;
+    }
+
+    /* --- Scroll Animation Setup --- */
+
+    /* Initial State (Invisible and slightly below final position) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        /* Set a default transition duration for the scroll effect */
+        transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                    transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        /* Set a slight initial delay to ensure the IntersectionObserver is ready */
+        transition-delay: 0.1s;
+    }
+
+    /* Visible State (Triggered by JavaScript) */
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* --- Layout and Component Styling --- */
+
+    header {
+        padding: 80px 20px;
+        text-align: center;
+        background: linear-gradient(135deg, #181818, var(--color-bg-dark), #181818);
+        border-bottom: 2px solid #292929;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    header h1 {
+        font-size: clamp(2.5rem, 8vw, 4rem);
+        font-weight: 800;
+        margin-bottom: 5px;
+        text-shadow: 0 0 5px rgba(214, 174, 96, 0.5);
+    }
+
+    header p {
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        opacity: 0.7;
+    }
+
+    section {
+        padding: 60px 0;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    /* Card Styling */
+    .card {
+        background: var(--color-card-dark);
+        padding: 30px;
+        margin: 20px 0;
+        border-radius: 12px;
+        border: 1px solid var(--color-border-dark);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(214, 174, 96, 0.15);
+    }
+
+    .card strong {
+        color: #f1c77b;
+    }
+
+    /* Testimonials Grid */
+    .testimonials {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .testimonial-box {
+        background: var(--color-card-dark);
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid var(--color-border-dark);
+        font-style: italic;
+        position: relative;
+        overflow: hidden;
+    }
+    .testimonial-box::before {
+        content: '“';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 5rem;
+        color: rgba(214, 174, 96, 0.1);
+        z-index: 0;
+        line-height: 1;
+        font-family: Georgia, serif;
+    }
+    .testimonial-box > * {
+        position: relative;
+        z-index: 1;
+    }
+    .testimonial-box em {
+        display: block;
+        margin-top: 15px;
+        font-style: normal;
+        font-weight: 500;
+        color: var(--color-primary);
+    }
+
+    /* CTA Section */
+    .cta {
+        text-align: center;
+        padding: 60px 20px;
+        background: #111;
+        border-top: 1px solid #222;
+    }
+
+    .cta h2 {
+        margin-bottom: 30px;
+        color: #ffffff;
+    }
+
+    .cta button {
+        background: var(--color-primary); /* Gold */
+        color: #000;
+        padding: 16px 40px;
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        border-radius: 50px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(214, 174, 96, 0.4);
+        min-height: 50px;
+    }
+
+    .cta button:hover {
+        background: #f1c77b;
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(214, 174, 96, 0.6);
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        font-size: 0.9rem;
+        opacity: 0.5;
+        border-top: 1px solid #1a1a1a;
+    }
+
+</style>
+
+</head>
+<body>
+
+<header class="animate-on-scroll">
+    <h1>CREZIA</h1>
+    <p>Where Creativity Meets Vision, and Vision Becomes Reality</p>
+</header>
+
+<section>
+    <div class="container">
+        <h2 class="animate-on-scroll">Our Vision</h2>
+        <div class="card animate-on-scroll">
+            <p>To redefine how creativity and technology merge — setting the global standard for digital innovation, with high-end creativity and uncompromising excellence.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <h2 class="animate-on-scroll">Our Mission</h2>
+        <div class="card animate-on-scroll">
+            <p>Most brands have bold ideas. Few know how to express them in a way the world respects.
+            CREZIA exists to bridge this gap — transforming ordinary ideas into premium digital experiences that command attention, trust, and admiration.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <h2 class="animate-on-scroll">What CREZIA Stands For</h2>
+        <div class="card animate-on-scroll">
+            <p>Derived from “Create + Vision (CREZ)” and the Latin/Italian suffix “-ia” meaning “place of”, CREZIA represents:
+            <br><br>
+            <strong>“The place where creative vision happens.”</strong>
+            <br>
+            A sanctuary of innovation, excellence, and artistic mastery.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <h2 class="animate-on-scroll">Testimonials</h2>
+        <div class="testimonials">
+
+            <div class="testimonial-box animate-on-scroll">
+                “CREZIA transformed our brand beyond what we imagined. The clarity, depth, and premium feel we got made us stand out instantly.”
+                <br>
+                <em>— Daniel, Founder of BuildSmart</em>
+            </div>
+
+            <div class="testimonial-box animate-on-scroll">
+                “If excellence had a digital address, it would be CREZIA. The team truly understands world-class branding.”
+                <br>
+                <em>— Amaka, Creative Director</em>
+            </div>
+
+            <div class="testimonial-box animate-on-scroll">
+                “Working with CREZIA elevated our entire brand presence. Everything they created felt intentional, elite, and future-driven.”
+                <br>
+                <em>— Michael, CEO of PrimeTech</em>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <h2 class="animate-on-scroll">Ready to Build a Premium Brand?</h2>
+        <!-- CTA button linking to the specified email -->
+        <button class="animate-on-scroll" onclick="window.location.href='mailto:nwigweemmanuel48@gmail.com'">
+            Contact CREZIA
+        </button>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        &copy; 2025 CREZIA. All Rights Reserved.
+    </div>
+</footer>
+
+<script>
+    // JavaScript for Scroll-Triggered Animation using Intersection Observer
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Select all elements that need to animate
+        const elementsToAnimate = document.querySelectorAll('.animate-on-scroll');
+
+        // 2. Options for the observer
+        const observerOptions = {
+            root: null, // relative to the viewport
+            rootMargin: '0px',
+            threshold: 0.1 // Trigger when 10% of the item is visible
+        };
+
+        // 3. Create the observer callback function
+        const observerCallback = (entries, observer) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    // Item is visible
+                    const element = entry.target;
+                    
+                    // Apply a sequential delay for items within the same intersecting group (e.g., testimonials)
+                    let delay = 0;
+                    if (element.closest('.testimonials')) {
+                        // Calculate index relative to its parent container for sequential effect
+                        const parent = element.parentElement;
+                        const siblings = Array.from(parent.children);
+                        const siblingIndex = siblings.indexOf(element);
+                        delay = siblingIndex * 200; // 200ms delay per sibling
+                    } else {
+                         // Apply a fixed delay for main section headers/cards to look staggered
+                         delay = 100;
+                    }
+
+                    setTimeout(() => {
+                        element.classList.add('is-visible');
+                        // Stop observing once the element has appeared
+                        observer.unobserve(element);
+                    }, delay);
+                }
+            });
+        };
+
+        // 4. Instantiate the observer
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+        // 5. Start observing each element
+        elementsToAnimate.forEach(element => {
+            observer.observe(element);
+        });
+    });
+</script>
+
+</body>
+</html>
